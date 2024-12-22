@@ -26,17 +26,17 @@ if selected == "Home":
     st.caption("Created by **Zein Rivo**")
 
 if selected == "Encryption":
-    st.write("# FACETERA ")
+    st.write("# NEA ")
     st.write(
     """
-    **Multi-Task Cascaded Convolutional Neural Networks (MTCNN)**.
+    **Masih Kosong**.
     """
     )
 
 if selected == "Decryption":
-    st.write("# FACETERA ")
+    st.write("# NEA ")
     st.write(
     """
-    **Multi-Task Cascaded Convolutional Neural Networks (MTCNN)**.
+    **Masih Kosong**.
     """
     )
