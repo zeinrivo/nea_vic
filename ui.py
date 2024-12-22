@@ -37,6 +37,6 @@ if selected == "Decryption":
     st.write("# NEA ")
     st.write(
     """
-    **Masih Kosong**.
+    **Ini Juga Masih Kosong**.
     """
     )
