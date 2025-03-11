@@ -1,2 +1,7 @@
-streamlit
-streamlit_option_menu
+streamlit==1.26.0
+streamlit-option-menu==0.3.2
+Pillow==10.0.0
+matplotlib==3.7.1
+pycryptodome==3.18.0
+numpy==1.23.5
+scikit-image==0.21.0
