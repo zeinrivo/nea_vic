@@ -7,9 +7,7 @@ from Crypto.Util.Padding import pad, unpad
 import numpy as np
 import os
 import time
-from skimage.metrics import mean_squared_error, peak_signal_noise_ratio
-
-
+from skimage.metrics import mean_squared_error, peak_signal_noise_ratio,structural_similarity
 
 
 def encrypt_doc(doc_path, key, output_encrypted_path):
@@ -223,10 +221,12 @@ if selected == "Insertion":
                             # Calculate MSE and PSNR
                             mse_value = mean_squared_error(cover_image_array, stego_image_array)
                             psnr_value = peak_signal_noise_ratio(cover_image_array, stego_image_array)
+                            ssim_value = structural_similarity(cover_image_array, stego_image_array, multichannel=True)
 
                             # Display the results
                             st.write(f"Mean Squared Error (MSE): {mse_value:.4f}")
                             st.write(f"Peak Signal-to-Noise Ratio (PSNR): {psnr_value:.4f} dB")
+                            st.write(f"Structural Similarity Index (SSIM): {ssim_value:.4f}")
 
 
                             # Clean up temporary files
@@ -306,11 +306,11 @@ if selected == "Insertion":
                             # Calculate MSE and PSNR
                             mse_value = mean_squared_error(cover_image_array, stego_image_array)
                             psnr_value = peak_signal_noise_ratio(cover_image_array, stego_image_array)
-
+                            ssim_value = structural_similarity(cover_image_array, stego_image_array, multichannel=True)
                             # Display the results
                             st.write(f"Mean Squared Error (MSE): {mse_value:.4f}")
                             st.write(f"Peak Signal-to-Noise Ratio (PSNR): {psnr_value:.4f} dB")
-
+                            st.write(f"Structural Similarity Index (SSIM): {ssim_value:.4f}")   
 
                             # Clean up temporary files
                             os.remove(file_path)
