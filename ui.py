@@ -221,7 +221,7 @@ if selected == "Insertion":
                             # Calculate MSE and PSNR
                             mse_value = mean_squared_error(cover_image_array, stego_image_array)
                             psnr_value = peak_signal_noise_ratio(cover_image_array, stego_image_array)
-                            ssim_value = structural_similarity(cover_image_array, stego_image_array, multichannel=True)
+                            ssim_value = structural_similarity(cover_image_array, stego_image_array, win_size=3, channel_axis=-1)
 
                             # Display the results
                             st.write(f"Mean Squared Error (MSE): {mse_value:.4f}")
@@ -306,7 +306,7 @@ if selected == "Insertion":
                             # Calculate MSE and PSNR
                             mse_value = mean_squared_error(cover_image_array, stego_image_array)
                             psnr_value = peak_signal_noise_ratio(cover_image_array, stego_image_array)
-                            ssim_value = structural_similarity(cover_image_array, stego_image_array, multichannel=True)
+                            ssim_value = structural_similarity(cover_image_array, stego_image_array, win_size=3, channel_axis=-1)
                             # Display the results
                             st.write(f"Mean Squared Error (MSE): {mse_value:.4f}")
                             st.write(f"Peak Signal-to-Noise Ratio (PSNR): {psnr_value:.4f} dB")
@@ -405,3 +405,4 @@ if selected == "Extraction":
             st.info("Please enter the encryption key.")
     else:
         st.info("Please upload the stego image.")
+
