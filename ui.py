@@ -7,6 +7,7 @@ from Crypto.Util.Padding import pad, unpad
 import numpy as np
 import os
 import time
+import zipfile
 from skimage.metrics import mean_squared_error, peak_signal_noise_ratio,structural_similarity
 
 
@@ -22,7 +23,7 @@ def encrypt_doc(doc_path, key, output_encrypted_path):
 
     print(f"Encrypted Doc saved to '{output_encrypted_path}'")
 
-    return iv + encrypted_data  # Concatenate IV with encrypted data for decryption
+    return iv + encrypted_data, output_encrypted_path  # Concatenate IV with encrypted data for decryption
 
 # Function to embed data into an image using LSB steganography
 def embed_data_to_image(image_file, output_image_path, data):
@@ -99,7 +100,7 @@ st.set_page_config(
 with st.sidebar:
    selected = option_menu(
         menu_title="Main Menu",  
-        options=["Home","Insertion","Extraction"], 
+        options=["Home","Insertion","Extraction","Avalanche Effect","Histogram"], 
         icons=["house", "record-circle"],  
         menu_icon="cast",  # optional
         default_index=0,  # optional         
@@ -182,7 +183,7 @@ if selected == "Insertion":
                             encrypted_file_path = "encrypted_file.bin"
 
                             start_time_aes = time.time()
-                            encrypted_data = encrypt_doc(file_path, key.encode(), encrypted_file_path)
+                            encrypted_data, enc_file_path = encrypt_doc(file_path, key.encode(), encrypted_file_path)
                             end_time_aes = time.time()
                             aes_execution_time = end_time_aes - start_time_aes
 
@@ -267,7 +268,7 @@ if selected == "Insertion":
                             encrypted_file_path = "encrypted_file.bin"
 
                             start_time_aes = time.time()
-                            encrypted_data = encrypt_doc(file_path, key.encode(), encrypted_file_path)
+                            encrypted_data, enc_file_path = encrypt_doc(file_path, key.encode(), encrypted_file_path)
                             end_time_aes = time.time()
                             aes_execution_time = end_time_aes - start_time_aes
 
@@ -325,8 +326,6 @@ if selected == "Insertion":
 
         else:
             st.info("Please choose whether to process the image with ESRGAN.")
-
-
 
 
 if selected == "Extraction":
@@ -405,4 +404,82 @@ if selected == "Extraction":
             st.info("Please enter the encryption key.")
     else:
         st.info("Please upload the stego image.")
+
+if selected == "Avalanche Effect":
+
+    def create_zip_file(files, zip_filename):
+        with zipfile.ZipFile(zip_filename, 'w') as zipf:
+            for file_path, arcname in files:
+                zipf.write(file_path, arcname=arcname)
+
+    def read_file(file_path):
+        """Read the content of the file."""
+        with open(file_path, "rb") as file:
+            return file.read()
+
+    def bit_difference(data1, data2):
+        """Calculate the number of differing bits between two byte sequences."""
+        bin1 = ''.join(format(byte, '08b') for byte in data1)
+        bin2 = ''.join(format(byte, '08b') for byte in data2)
+        return sum(b1 != b2 for b1, b2 in zip(bin1, bin2))
+
+    def calculate_avalanche_effect(original_key, modified_key, file_path):
+        """Calculate the avalanche effect when changing one letter in the key."""
+        file_extension = os.path.splitext(file_path)[-1]
+        output_encrypted_path_original = f"original_encrypted{file_extension}"
+        output_encrypted_path_modified = f"modified_encrypted{file_extension}"
+        
+        ciphertext_original, encrypted_file_path_original = encrypt_doc(file_path, original_key.encode(), output_encrypted_path_original)
+        ciphertext_modified, encrypted_file_path_modified = encrypt_doc(file_path, modified_key.encode(), output_encrypted_path_modified)
+        
+        bit_changes = bit_difference(ciphertext_original, ciphertext_modified)
+        total_bits = len(ciphertext_original) * 8
+        avalanche_effect = (bit_changes / total_bits) * 100
+        
+        return avalanche_effect, bit_changes, total_bits, encrypted_file_path_original, encrypted_file_path_modified, file_path
+
+    st.title("Avalanche Effect Calculation")
+
+    original_key = st.text_input("Enter the original 16-character encryption key:", max_chars=16)
+    modified_key = st.text_input("Enter the modified 16-character encryption key:", max_chars=16)
+    uploaded_file = st.file_uploader("Upload a PDF or DOCX document", type=["pdf", "docx"])
+
+    if st.button("Calculate Avalanche Effect"):
+        if uploaded_file and len(original_key) == 16 and len(modified_key) == 16:
+            file_path = f"temp_{uploaded_file.name}"
+            with open(file_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+            
+            avalanche, changed_bits, total_bits, encrypted_file_path_original, encrypted_file_path_modified, original_file_path = calculate_avalanche_effect(original_key, modified_key, file_path)
+            os.remove(file_path)
+            
+            st.write(f"Avalanche Effect: {avalanche:.2f}%")
+            st.write(f"Changed Bits: {changed_bits} / {total_bits}")
+            
+            zip_filename = "encrypted_files.zip"
+            create_zip_file([
+                (encrypted_file_path_original, f"original_encrypted{os.path.splitext(uploaded_file.name)[-1]}"),
+                (encrypted_file_path_modified, f"modified_encrypted{os.path.splitext(uploaded_file.name)[-1]}")
+            ], zip_filename)
+            
+            with open(zip_filename, "rb") as f:
+                zip_data = f.read()
+            
+            st.download_button(label="Download Encrypted Files", data=zip_data, file_name=zip_filename, mime="application/zip")
+            
+            os.remove(zip_filename)
+        else:
+            st.error("Please provide valid 16-character keys and upload a document.")
+
+
+
+
+if selected == "Histogram":
+    st.write("Histogram")
+
+
+
+
+
+
 
