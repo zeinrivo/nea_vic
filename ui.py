@@ -475,7 +475,10 @@ if selected == "Avalanche Effect":
 
 if selected == "Histogram":
     st.write("Histogram")
-    # Upload images
+    
+    # Ask user if they use ESRGAN
+    esrgan_used = st.radio("Did you use ESRGAN?", ("No", "Yes"))
+    
     # Upload images
     cover_file = st.file_uploader("Upload Cover Image", type=["png", "jpg", "jpeg"])
     stego_file = st.file_uploader("Upload Stego Image", type=["png", "jpg", "jpeg"])
@@ -492,6 +495,9 @@ if selected == "Histogram":
         if cover_img is None or stego_img is None:
             st.error("Error: Could not load one or both images.")
         else:
+            # Determine y-limit based on user input
+            ylim_value = 260000 if esrgan_used == "Yes" else 55000
+            
             # Create histograms
             if st.button("Show Histograms"):
                 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
@@ -501,14 +507,14 @@ if selected == "Histogram":
                 axes[0].set_title("Cover Image Histogram")
                 axes[0].set_xlabel("Pixel Intensity")
                 axes[0].set_ylabel("Frequency")
-                axes[0].set_ylim(0, 55000)
+                axes[0].set_ylim(0, ylim_value)
                 
                 # Stego Image Histogram
                 axes[1].hist(stego_img.ravel(), bins=150, range=[0, 256], color='red', alpha=0.7)
                 axes[1].set_title("Stego Image Histogram")
                 axes[1].set_xlabel("Pixel Intensity")
                 axes[1].set_ylabel("Frequency")
-                axes[1].set_ylim(0, 55000)
+                axes[1].set_ylim(0, ylim_value)
                 
                 # Combined Histogram
                 axes[2].hist(cover_img.ravel(), bins=150, range=[0, 256], color='blue', alpha=0.5, label='Cover Image')
@@ -517,7 +523,7 @@ if selected == "Histogram":
                 axes[2].set_xlabel("Pixel Intensity")
                 axes[2].set_ylabel("Frequency")
                 axes[2].legend()
-                axes[2].set_ylim(0, 55000)
+                axes[2].set_ylim(0, ylim_value)
                 
                 st.pyplot(fig)
 
