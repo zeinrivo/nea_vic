@@ -9,6 +9,8 @@ import os
 import time
 import zipfile
 from skimage.metrics import mean_squared_error, peak_signal_noise_ratio,structural_similarity
+from io import BytesIO
+import cv2
 
 
 def encrypt_doc(doc_path, key, output_encrypted_path):
@@ -101,7 +103,7 @@ with st.sidebar:
    selected = option_menu(
         menu_title="Main Menu",  
         options=["Home","Insertion","Extraction","Avalanche Effect","Histogram"], 
-        icons=["house", "record-circle"],  
+        icons=["house", "arrow-down-circle", "arrow-up-circle", "lightning", "bar-chart"],  
         menu_icon="cast",  # optional
         default_index=0,  # optional         
 )
@@ -114,7 +116,7 @@ if selected == "Home":
     """
     )
     
-    st.caption("Created by **Zein Rivo**")
+    # st.caption("Created by **Zein Rivo**")
 
 if selected == "Insertion":
 
@@ -471,15 +473,51 @@ if selected == "Avalanche Effect":
         else:
             st.error("Please provide valid 16-character keys and upload a document.")
 
-
-
-
 if selected == "Histogram":
     st.write("Histogram")
+    # Upload images
+    # Upload images
+    cover_file = st.file_uploader("Upload Cover Image", type=["png", "jpg", "jpeg"])
+    stego_file = st.file_uploader("Upload Stego Image", type=["png", "jpg", "jpeg"])
 
+    if cover_file and stego_file:
+        # Convert files to OpenCV format
+        cover_bytes = np.asarray(bytearray(cover_file.read()), dtype=np.uint8)
+        cover_img = cv2.imdecode(cover_bytes, cv2.IMREAD_GRAYSCALE)
 
-
-
-
-
+        stego_bytes = np.asarray(bytearray(stego_file.read()), dtype=np.uint8)
+        stego_img = cv2.imdecode(stego_bytes, cv2.IMREAD_GRAYSCALE)
+        
+        # Check if images are loaded
+        if cover_img is None or stego_img is None:
+            st.error("Error: Could not load one or both images.")
+        else:
+            # Create histograms
+            if st.button("Show Histograms"):
+                fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+                
+                # Cover Image Histogram
+                axes[0].hist(cover_img.ravel(), bins=150, range=[0, 256], color='blue', alpha=0.7)
+                axes[0].set_title("Cover Image Histogram")
+                axes[0].set_xlabel("Pixel Intensity")
+                axes[0].set_ylabel("Frequency")
+                axes[0].set_ylim(0, 55000)
+                
+                # Stego Image Histogram
+                axes[1].hist(stego_img.ravel(), bins=150, range=[0, 256], color='red', alpha=0.7)
+                axes[1].set_title("Stego Image Histogram")
+                axes[1].set_xlabel("Pixel Intensity")
+                axes[1].set_ylabel("Frequency")
+                axes[1].set_ylim(0, 55000)
+                
+                # Combined Histogram
+                axes[2].hist(cover_img.ravel(), bins=150, range=[0, 256], color='blue', alpha=0.5, label='Cover Image')
+                axes[2].hist(stego_img.ravel(), bins=150, range=[0, 256], color='red', alpha=0.5, label='Stego Image')
+                axes[2].set_title("Combined Histogram")
+                axes[2].set_xlabel("Pixel Intensity")
+                axes[2].set_ylabel("Frequency")
+                axes[2].legend()
+                axes[2].set_ylim(0, 55000)
+                
+                st.pyplot(fig)
 
