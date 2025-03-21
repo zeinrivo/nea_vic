@@ -474,7 +474,6 @@ if selected == "Avalanche Effect":
             st.error("Please provide valid 16-character keys and upload a document.")
 
 if selected == "Histogram":
-    st.write("Histogram")
     
     # Ask user if they use ESRGAN
     esrgan_used = st.radio("Did you use ESRGAN?", ("Yes", "No"),index=None)
