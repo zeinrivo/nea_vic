@@ -477,11 +477,11 @@ if selected == "Histogram":
     st.write("Histogram")
     
     # Ask user if they use ESRGAN
-    esrgan_used = st.radio("Did you use ESRGAN?", ("No", "Yes"))
+    esrgan_used = st.radio("Did you use ESRGAN?", ("Yes", "No"),index=None)
     
     # Upload images
-    cover_file = st.file_uploader("Upload Cover Image", type=["png", "jpg", "jpeg"])
-    stego_file = st.file_uploader("Upload Stego Image", type=["png", "jpg", "jpeg"])
+    cover_file = st.file_uploader("Upload Cover Image", type=["png"])
+    stego_file = st.file_uploader("Upload Stego Image", type=["png"])
 
     if cover_file and stego_file:
         # Convert files to OpenCV format
