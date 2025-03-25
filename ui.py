@@ -438,14 +438,12 @@ if selected == "Avalanche Effect":
         # Encrypt with the original key
         ciphertext_original, encrypted_file_path_original = encrypt_doc(file_path, original_key.encode(), output_encrypted_path_original)
         
-        # Initialize modified encryption path to None
-        encrypted_file_path_modified = None
-        
-        # If keys are identical, calculate effect with a comparison to itself
+        # If keys are identical, use the original encrypted file path for modified as well
         if original_key == modified_key:
             bit_changes = 0
             total_bits = len(ciphertext_original) * 8
             avalanche_effect = 0.0
+            encrypted_file_path_modified = encrypted_file_path_original
         else:
             # Encrypt with the modified key
             ciphertext_modified, encrypted_file_path_modified = encrypt_doc(file_path, modified_key.encode(), output_encrypted_path_modified)
