@@ -426,18 +426,32 @@ if selected == "Avalanche Effect":
         return sum(b1 != b2 for b1, b2 in zip(bin1, bin2))
 
     def calculate_avalanche_effect(original_key, modified_key, file_path):
-        """Calculate the avalanche effect when changing one letter in the key."""
+        """
+        Calculate the avalanche effect when changing one letter in the key.
+        
+        If the original and modified keys are the same, return 0% avalanche effect.
+        """
         file_extension = os.path.splitext(file_path)[-1]
         output_encrypted_path_original = f"original_encrypted{file_extension}"
         output_encrypted_path_modified = f"modified_encrypted{file_extension}"
         
+        # Encrypt with the original key
         ciphertext_original, encrypted_file_path_original = encrypt_doc(file_path, original_key.encode(), output_encrypted_path_original)
-        ciphertext_modified, encrypted_file_path_modified = encrypt_doc(file_path, modified_key.encode(), output_encrypted_path_modified)
         
-        bit_changes = bit_difference(ciphertext_original, ciphertext_modified)
-        total_bits = len(ciphertext_original) * 8
-        avalanche_effect = (bit_changes / total_bits) * 100
-        
+        # If keys are identical, calculate effect with a comparison to itself
+        if original_key == modified_key:
+            bit_changes = 0
+            total_bits = len(ciphertext_original) * 8
+            avalanche_effect = 0.0
+        else:
+            # Encrypt with the modified key
+            ciphertext_modified, encrypted_file_path_modified = encrypt_doc(file_path, modified_key.encode(), output_encrypted_path_modified)
+            
+            # Calculate bit differences
+            bit_changes = bit_difference(ciphertext_original, ciphertext_modified)
+            total_bits = len(ciphertext_original) * 8
+            avalanche_effect = (bit_changes / total_bits) * 100
+    
         return avalanche_effect, bit_changes, total_bits, encrypted_file_path_original, encrypted_file_path_modified, file_path
 
     st.title("Avalanche Effect Calculation")
